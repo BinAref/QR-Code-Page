@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ar" dir="auto">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>QR</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:system-ui,sans-serif;background:#f0f2f5;
+         min-height:100vh;display:flex;align-items:center;
+         justify-content:center;padding:20px}
+    .card{background:white;border-radius:20px;padding:28px;
+          max-width:420px;width:100%;
+          box-shadow:0 4px 24px rgba(0,0,0,.08)}
+    .header{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+    .icon{width:44px;height:44px;border-radius:12px;
+          background:#f0f0ff;display:flex;align-items:center;
+          justify-content:center;font-size:22px;flex-shrink:0}
+    .title{font-size:1.1rem;font-weight:700;color:#111}
+    .subtitle{font-size:.8rem;color:#999;margin-top:2px}
+    .row{display:flex;gap:12px;padding:12px 0;
+         border-bottom:1px solid #f5f5f5;align-items:flex-start}
+    .row:last-of-type{border:none}
+    .label{font-size:.75rem;color:#aaa;min-width:72px;
+           padding-top:3px;text-transform:uppercase;letter-spacing:.4px}
+    .value{font-size:.95rem;color:#333;word-break:break-all;flex:1}
+    .btn{display:flex;align-items:center;justify-content:center;gap:8px;
+         margin-top:20px;padding:14px;background:#6366f1;color:white;
+         border-radius:12px;text-decoration:none;font-weight:600;
+         font-size:.95rem;transition:opacity .15s}
+    .btn:active{opacity:.8}
+    .btn.secondary{background:white;color:#6366f1;
+                   border:1.5px solid #6366f1;margin-top:10px}
+    .loader{text-align:center;padding:40px 0}
+    .spinner{width:36px;height:36px;border:3px solid #eee;
+             border-top-color:#6366f1;border-radius:50%;
+             animation:spin .7s linear infinite;margin:0 auto 16px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .error{text-align:center;padding:32px 0;color:#e53e3e}
+    .error .e-icon{font-size:40px;margin-bottom:12px}
+    .wifi-pass{display:flex;align-items:center;gap:8px}
+    .copy-btn{background:none;border:none;cursor:pointer;
+              color:#6366f1;font-size:14px;padding:2px 6px;
+              border-radius:6px;background:#f0f0ff}
+  </style>
+</head>
+<body>
+<div class="card" id="app">
+  <div class="loader">
+    <div class="spinner"></div>
+    <div style="color:#999;font-size:.9rem">جاري التحميل...</div>
+  </div>
+</div>
+
+<script>
+// ── الإعدادات ──────────────────────────────────────────────────
+const SUPABASE_URL  = "YOUR_SUPABASE_URL";
+const SUPABASE_ANON = "YOUR_SUPABASE_ANON_KEY";
+
+// ── الأيقونات ──────────────────────────────────────────────────
+const icons = {
+  url:'🔗', phone:'📞', email:'✉️', sms:'💬',
+  wifi:'📶', location:'📍', contact:'👤', event:'📅', text:'📝'
+};
+
+// ── قراءة التوكن من URL ────────────────────────────────────────
+const params = new URLSearchParams(location.search);
+const token  = params.get("t") || params.get("token") || "";
+
+async function load() {
+  const app = document.getElementById("app");
+  if (!token) { showError("رابط غير صالح"); return; }
+
+  try {
+    // فك base64 للحصول على fullCode
+    const pad     = token.length % 4;
+    const padded  = pad ? token + "=".repeat(4-pad) : token;
+    const fullCode = atob(padded.replace(/-/g,"+").replace(/_/g,"/"));
+
+    // استدعاء scan_code
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/scan_code`, {
+      method: "POST",
+      headers: {
+        "Content-Type":  "application/json",
+        "apikey":        SUPABASE_ANON,
+        "Authorization": `Bearer ${SUPABASE_ANON}`,
+      },
+      body: JSON.stringify({
+        full_code:   fullCode,
+        device_code: "web:" + navigator.userAgent.slice(0,20),
+        org_code:    fullCode.split("-")[0],
+        method:      "web",
+      }),
+    });
+
+    const data = await res.json();
+    if (data.result !== "success" || !data.data) {
+      showError("الرمز غير موجود أو منتهي الصلاحية");
+      return;
+    }
+
+    render(app, data.data_type, data.data, data.label || "");
+  } catch(e) {
+    showError("تعذّر الاتصال");
+  }
+}
+
+function render(app, type, d, label) {
+  const icon  = icons[type] || "📋";
+  let rows    = "";
+  let actions = "";
+
+  if (type === "url") {
+    rows    = row("الرابط", d.url);
+    actions = btn(d.url, "فتح الرابط", "↗");
+  } else if (type === "phone") {
+    rows    = row("الهاتف", d.phone);
+    actions = btn("tel:"+d.phone, "اتصل الآن", "📞");
+  } else if (type === "email") {
+    const subj = d.subject ? "?subject="+encodeURIComponent(d.subject) : "";
+    rows    = row("البريد", d.email) + (d.subject ? row("الموضوع", d.subject) : "");
+    actions = btn("mailto:"+d.email+subj, "إرسال بريد", "✉️");
+  } else if (type === "sms") {
+    rows    = row("الهاتف", d.phone) + (d.message ? row("الرسالة", d.message) : "");
+    actions = btn("sms:"+d.phone, "إرسال رسالة", "💬");
+  } else if (type === "location") {
+    rows    = row("الموقع", d.lat+", "+d.lng);
+    actions = btn(`https://maps.google.com/?q=${d.lat},${d.lng}`, "فتح الخريطة", "📍");
+  } else if (type === "wifi") {
+    rows = row("الشبكة", d.ssid) +
+      `<div class="row"><span class="label">كلمة المرور</span>
+       <div class="value"><div class="wifi-pass">
+         <span id="wpass">${d.password||"—"}</span>
+         <button class="copy-btn" onclick="copyWifi()">نسخ</button>
+       </div></div></div>`;
+    actions = btn("wifi://"+d.ssid, "الاتصال بالشبكة", "📶");
+  } else if (type === "contact") {
+    const name = [d.first_name,d.last_name].filter(Boolean).join(" ") || d.name || "";
+    rows = (name ? row("الاسم", name) : "")
+         + (d.phone ? row("الهاتف", d.phone) : "")
+         + (d.email ? row("البريد", d.email) : "");
+    if (d.phone) actions += btn("tel:"+d.phone, "اتصل", "📞");
+  } else if (type === "event") {
+    rows = row("الحدث", d.summary||d.title||"")
+         + (d.start ? row("البداية", d.start) : "")
+         + (d.end   ? row("النهاية",  d.end)   : "");
+  } else {
+    rows = row("المحتوى", d.text||d.raw||JSON.stringify(d));
+  }
+
+  app.innerHTML = `
+    <div class="header">
+      <div class="icon">${icon}</div>
+      <div>
+        <div class="title">${label || typeName(type)}</div>
+        <div class="subtitle">${typeName(type)}</div>
+      </div>
+    </div>
+    ${rows}
+    ${actions}
+  `;
+}
+
+function row(label, value) {
+  return `<div class="row">
+    <span class="label">${label}</span>
+    <span class="value">${value||""}</span>
+  </div>`;
+}
+
+function btn(href, label, icon) {
+  return `<a class="btn" href="${href}">${icon} ${label}</a>`;
+}
+
+function typeName(t) {
+  const n={url:"رابط",phone:"هاتف",email:"بريد إلكتروني",sms:"رسالة",
+           wifi:"شبكة WiFi",location:"موقع",contact:"جهة اتصال",
+           event:"حدث",text:"نص"};
+  return n[t]||t;
+}
+
+function copyWifi() {
+  const p = document.getElementById("wpass");
+  if (p) navigator.clipboard?.writeText(p.textContent||"");
+}
+
+function showError(msg) {
+  document.getElementById("app").innerHTML =
+    `<div class="error"><div class="e-icon">⚠️</div><div>${msg}</div></div>`;
+}
+
+load();
+</script>
+</body>
+</html>
