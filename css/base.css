@@ -1,269 +1,299 @@
-/* css/base.css — QR Art Generator Web Pages */
-/* نفس تصميم التطبيق */
+/* ── Reset ───────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
+/* ── Root — app colour tokens ────────────────────────────────── */
 :root {
-  --radius-sm:   10px;
-  --radius-md:   14px;
-  --radius-lg:   20px;
-  --radius-xl:   24px;
-  --shadow-card: 0 2px 16px rgba(0,0,0,.08), 0 0 0 1px rgba(0,0,0,.04);
-  --color-bg:    #f2f3f7;
-  --color-card:  #ffffff;
-  --color-text:  #111111;
-  --color-sub:   #666666;
-  --color-hint:  #aaaaaa;
-  --color-line:  #f0f0f0;
-  --color-surf:  #f7f8fb;
-  --accent:      #6366f1;
+  --bg:            #f5f5f5;   /* colorScheme.surface (light) */
+  --surface:       #ffffff;
+  --surf-high:     rgba(0,0,0,.05);   /* surfaceContainerHighest ~0.3 */
+  --surf-field:    rgba(0,0,0,.04);   /* field background */
+  --outline:       rgba(0,0,0,.12);
+  --outline-light: rgba(0,0,0,.07);
+  --on-surface:    #111111;
+  --on-variant:    #666666;
+  --on-hint:       #999999;
+  --divider:       rgba(0,0,0,.08);
+  --radius:        16px;
+  --radius-field:  12px;
+  --radius-btn:    16px;
 }
 
-html { -webkit-text-size-adjust: 100%; }
-
-body {
+/* ── Base ─────────────────────────────────────────────────────── */
+html, body {
+  height: 100%;
   font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
-  background: var(--color-bg);
-  color: var(--color-text);
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
+  font-size: 16px;
   line-height: 1.5;
+  color: var(--on-surface);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
 }
 
-/* ── App shell ─────────────────────────────────── */
-.app-shell {
-  max-width: 440px;
-  width: 100%;
+/* ── App shell — fills entire screen like Flutter Scaffold ─────── */
+#app {
+  min-height: 100dvh;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
 }
 
-/* ── Card ──────────────────────────────────────── */
-.card {
-  background: var(--color-card);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-card);
-  overflow: hidden;
-}
-
-/* ── Card header ───────────────────────────────── */
-.card-header {
+/* ── App bar ─────────────────────────────────────────────────── */
+.app-bar {
+  background: var(--surface);
+  padding: 12px 16px 12px;
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 20px;
-  border-bottom: 1px solid var(--color-line);
+  gap: 12px;
+  /* divider line at bottom — AppBarDivider equivalent */
+  border-bottom: 1px solid var(--divider);
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
-.type-badge {
-  width: 48px;
-  height: 48px;
-  border-radius: 14px;
+.app-bar-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
+  font-size: 20px;
   flex-shrink: 0;
 }
 
-.card-title {
+.app-bar-text { flex: 1; min-width: 0; }
+
+.app-bar-title {
   font-size: 1rem;
   font-weight: 700;
-  color: var(--color-text);
-  line-height: 1.3;
+  color: var(--on-surface);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.card-subtitle {
-  font-size: .74rem;
-  color: var(--color-hint);
-  margin-top: 2px;
+.app-bar-sub {
+  font-size: .72rem;
+  color: var(--on-hint);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: .4px;
+  margin-top: 1px;
 }
 
-/* ── Data rows ─────────────────────────────────── */
-.rows { padding: 4px 0; }
-
-.data-row {
-  display: flex;
-  gap: 12px;
-  padding: 13px 20px;
-  border-bottom: 1px solid var(--color-line);
-  align-items: flex-start;
-}
-
-.data-row:last-child { border-bottom: none; }
-
-.data-label {
-  font-size: .71rem;
-  color: var(--color-hint);
-  min-width: 72px;
-  padding-top: 2px;
-  text-transform: uppercase;
-  letter-spacing: .5px;
-  flex-shrink: 0;
-  font-weight: 500;
-}
-
-.data-value {
-  font-size: .92rem;
-  color: #333;
-  word-break: break-all;
+/* ── Scroll body ─────────────────────────────────────────────── */
+.app-body {
   flex: 1;
-  line-height: 1.45;
-}
-
-/* ── Actions section ───────────────────────────── */
-.actions {
-  padding: 14px 20px 20px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-/* ── Buttons ───────────────────────────────────── */
-.btn {
+/* ── Field card — matches QRResultCard _buildField ───────────── */
+.field-card {
+  background: var(--surf-field);
+  border-radius: var(--radius-field);
+  border: 1px solid var(--outline-light);
+  overflow: hidden;
+}
+
+.field-inner {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+}
+
+.field-body {
+  flex: 1;
+  padding: 12px 14px;
+  min-width: 0;
+}
+
+.field-label {
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--on-hint);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-bottom: 3px;
+}
+
+.field-value {
+  font-size: .93rem;
+  color: var(--on-surface);
+  word-break: break-all;
+  line-height: 1.45;
+}
+
+.field-value a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* copy button inside field */
+.field-copy {
+  width: 44px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  border-left: 1px solid var(--outline-light);
+  color: var(--on-variant);
+  transition: background .12s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.field-copy:active { background: var(--surf-high); }
+
+.field-copy svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ── Actions row — matches the Row at bottom of QRResultCard ─── */
+.actions {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+  margin-top: 4px;
+}
+
+/* Primary action — gradient + shadow */
+.btn-action {
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 14px 20px;
-  border-radius: var(--radius-md);
-  font-weight: 600;
-  font-size: .92rem;
-  text-decoration: none;
+  padding: 16px 20px;
+  border-radius: var(--radius-btn);
   border: none;
   cursor: pointer;
-  transition: opacity .15s, transform .1s;
-  width: 100%;
-  font-family: inherit;
-}
-
-.btn:active { opacity: .82; transform: scale(.985); }
-
-.btn-primary { color: #fff; }
-
-.btn-outline {
-  background: transparent !important;
-  border: 1.5px solid;
-}
-
-/* ── Copy chip ─────────────────────────────────── */
-.copy-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  background: var(--color-surf);
-  border: 1px solid var(--color-line);
-  border-radius: 8px;
-  padding: 4px 10px;
-  font-size: .78rem;
-  font-weight: 600;
-  cursor: pointer;
-  color: var(--accent);
-  font-family: inherit;
-  transition: background .12s;
-}
-.copy-chip:active { background: #eef; }
-
-/* ── Toast ─────────────────────────────────────── */
-.toast {
-  position: fixed;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%) translateY(80px);
-  background: #222;
+  font-size: .95rem;
+  font-weight: 700;
   color: #fff;
-  padding: 10px 20px;
-  border-radius: 24px;
-  font-size: .84rem;
-  font-weight: 500;
-  pointer-events: none;
-  transition: transform .25s ease, opacity .25s;
-  opacity: 0;
-  z-index: 999;
-  white-space: nowrap;
-}
-.toast.show {
-  transform: translateX(-50%) translateY(0);
-  opacity: 1;
+  text-decoration: none;
+  font-family: inherit;
+  transition: opacity .15s, transform .1s;
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* ── State pages ───────────────────────────────── */
+.btn-action:active { opacity: .85; transform: scale(.98); }
+
+/* Copy-all button — matches the square icon button */
+.btn-copy-all {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-field);
+  border: 1px solid var(--outline);
+  background: var(--surf-high);
+  cursor: pointer;
+  transition: background .12s;
+  -webkit-tap-highlight-color: transparent;
+  align-self: center;
+}
+
+.btn-copy-all:active { background: var(--outline); }
+
+.btn-copy-all svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* ── State pages — limit / error ─────────────────────────────── */
 .state-page {
-  background: var(--color-card);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-card);
-  padding: 48px 28px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 28px;
   text-align: center;
+  gap: 0;
 }
 
-.state-icon {
-  font-size: 56px;
-  line-height: 1;
-  margin-bottom: 18px;
-}
+.state-icon { font-size: 60px; line-height: 1; margin-bottom: 20px; }
 
 .state-title {
   font-size: 1.1rem;
   font-weight: 700;
-  color: var(--color-text);
+  color: var(--on-surface);
   margin-bottom: 10px;
 }
 
 .state-desc {
   font-size: .88rem;
-  color: var(--color-sub);
+  color: var(--on-variant);
   line-height: 1.6;
   max-width: 280px;
-  margin: 0 auto;
 }
 
 .state-badge {
-  display: inline-block;
-  margin-top: 18px;
-  padding: 7px 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 20px;
+  padding: 8px 18px;
   border-radius: 24px;
-  font-size: .8rem;
+  font-size: .82rem;
   font-weight: 600;
 }
 
-/* ── Loader ─────────────────────────────────────── */
+/* ── Loader ──────────────────────────────────────────────────── */
 .loader-page {
-  text-align: center;
-  padding: 60px 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 40px;
 }
 
 .spinner {
-  width: 36px;
-  height: 36px;
+  width: 36px; height: 36px;
   border: 3px solid #e0e0e0;
-  border-top-color: var(--accent);
+  border-top-color: #6366f1;
   border-radius: 50%;
   animation: spin .7s linear infinite;
-  margin: 0 auto 16px;
 }
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
-.loader-text {
-  color: var(--color-hint);
-  font-size: .9rem;
+.loader-text { color: var(--on-hint); font-size: .9rem; }
+
+/* ── Toast ───────────────────────────────────────────────────── */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(60px);
+  background: #1a1a1a;
+  color: #fff;
+  padding: 10px 22px;
+  border-radius: 24px;
+  font-size: .84rem;
+  font-weight: 500;
+  pointer-events: none;
+  transition: transform .25s, opacity .25s;
+  opacity: 0;
+  z-index: 999;
+  white-space: nowrap;
 }
 
-/* ── Wifi password row ──────────────────────────── */
-.pass-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
 }
 
-/* ── RTL overrides ──────────────────────────────── */
-[dir="rtl"] .data-label { text-align: right; }
+/* ── RTL ─────────────────────────────────────────────────────── */
+[dir="rtl"] .field-copy { border-left: none; border-right: 1px solid var(--outline-light); }

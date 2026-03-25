@@ -2,17 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
   <title>QR Code</title>
   <link rel="stylesheet" href="css/base.css">
 </head>
 <body>
-<div class="app-shell" id="app">
+<div id="app">
   <div class="loader-page">
     <div class="spinner"></div>
-    <div class="loader-text" data-i18n="loading">Loading...</div>
+    <p class="loader-text">Loading...</p>
   </div>
 </div>
+<div id="toast" class="toast"></div>
 
 <script src="js/i18n.js"></script>
 <script src="js/store.js"></script>

@@ -1,27 +1,12 @@
-// js/store.js — localStorage مع TTL
-
-(function() {
-  const TTL = 30 * 24 * 60 * 60 * 1000; // 30 يوم
-
-  function set(key, val) {
-    try { localStorage.setItem(key, JSON.stringify({ v: val, t: Date.now() })); }
-    catch(_) {}
-  }
-
-  function get(key) {
-    try {
-      const raw = localStorage.getItem(key);
-      if (!raw) return null;
-      const obj = JSON.parse(raw);
-      if (Date.now() - obj.t > TTL) { localStorage.removeItem(key); return null; }
-      return obj.v;
-    } catch(_) { return null; }
-  }
-
-  window.store = {
-    isDisabled:       (code) => get('qrd_' + code) === true,
-    isDeviceLimited:  (code) => get('qrv_' + code) === true,
-    markDisabled:     (code) => set('qrd_' + code, true),
-    markDeviceLimited:(code) => set('qrv_' + code, true),
+// js/store.js
+(function(){
+  const TTL=30*24*60*60*1000;
+  function s(k,v){try{localStorage.setItem(k,JSON.stringify({v,t:Date.now()}))}catch(_){}}
+  function g(k){try{const r=localStorage.getItem(k);if(!r)return null;const o=JSON.parse(r);if(Date.now()-o.t>TTL){localStorage.removeItem(k);return null}return o.v}catch(_){return null}}
+  window.store={
+    isDisabled:       c=>g('qrd_'+c)===true,
+    isDeviceLimited:  c=>g('qrv_'+c)===true,
+    markDisabled:     c=>s('qrd_'+c,true),
+    markDeviceLimited:c=>s('qrv_'+c,true),
   };
 })();
