@@ -1,52 +1,116 @@
-/* /workspaces/QR-Code-Page/css/base.css* /
+/* /workspaces/QR-Code-Page/css/base.css */
+
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
 
 /* ── Reset ───────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* ── Root — app colour tokens ────────────────────────────────── */
+/* ── Root — Material You / Flutter color tokens ─────────────── */
 :root {
-  --bg:            #f5f5f5;   /* colorScheme.surface (light) */
-  --surface:       #ffffff;
-  --surf-high:     rgba(0,0,0,.05);   /* surfaceContainerHighest ~0.3 */
-  --surf-field:    rgba(0,0,0,.04);   /* field background */
-  --outline:       rgba(0,0,0,.12);
-  --outline-light: rgba(0,0,0,.07);
-  --on-surface:    #111111;
-  --on-variant:    #666666;
-  --on-hint:       #999999;
-  --divider:       rgba(0,0,0,.08);
-  --radius:        16px;
-  --radius-field:  12px;
-  --radius-btn:    16px;
+  /* Surface */
+  --bg:                 #f2f2f7;
+  --surface:            #ffffff;
+  --surface-container:  #f7f7fa;
+  --surf-high:          rgba(0,0,0,.06);
+  --surf-field:         rgba(0,0,0,.035);
+  --surf-hover:         rgba(0,0,0,.05);
+
+  /* Borders */
+  --outline:            rgba(0,0,0,.13);
+  --outline-light:      rgba(0,0,0,.07);
+  --divider:            rgba(0,0,0,.07);
+
+  /* Text */
+  --on-surface:         #0f0f14;
+  --on-variant:         #5a5a6e;
+  --on-hint:            #9898a8;
+
+  /* Radii */
+  --radius:             20px;
+  --radius-field:       14px;
+  --radius-btn:         18px;
+  --radius-card:        20px;
+
+  /* Shadows */
+  --shadow-card:        0 2px 20px rgba(0,0,0,.07), 0 1px 4px rgba(0,0,0,.05);
+  --shadow-btn:         0 4px 18px rgba(0,0,0,.18);
+
+  /* Spacing — fluid */
+  --gap:                clamp(10px, 2vw, 16px);
+  --pad:                clamp(16px, 4vw, 28px);
+  --body-pad:           clamp(14px, 4vw, 24px);
+
+  /* Typography */
+  --font-body:          'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono:          'IBM Plex Mono', monospace;
 }
 
 /* ── Base ─────────────────────────────────────────────────────── */
-html, body {
+html {
   height: 100%;
-  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
   font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100%;
+  font-family: var(--font-body);
   line-height: 1.5;
   color: var(--on-surface);
   background: var(--bg);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* ── App shell — fills entire screen like Flutter Scaffold ─────── */
+/* ── App shell ────────────────────────────────────────────────── */
 #app {
   min-height: 100dvh;
   background: var(--bg);
   display: flex;
   flex-direction: column;
+  align-items: stretch;
 }
 
-/* ── App bar ─────────────────────────────────────────────────── */
+/* ── Responsive center column ─────────────────────────────────── */
+.app-bar,
+.app-body {
+  width: 100%;
+  max-width: 680px;
+  margin-inline: auto;
+}
+
+/* Widescreen: full-width bg with centered column */
+@media (min-width: 720px) {
+  #app {
+    align-items: center;
+    padding: 32px 20px 48px;
+    min-height: 100dvh;
+  }
+
+  .app-bar {
+    border-radius: var(--radius-card) var(--radius-card) 0 0;
+    border: 1px solid var(--outline-light);
+    border-bottom: none;
+    position: static; /* not sticky on desktop */
+  }
+
+  .app-body {
+    background: var(--surface);
+    border-radius: 0 0 var(--radius-card) var(--radius-card);
+    border: 1px solid var(--outline-light);
+    border-top: none;
+    box-shadow: var(--shadow-card);
+    padding-bottom: 28px;
+  }
+}
+
+/* ── App Bar ──────────────────────────────────────────────────── */
 .app-bar {
   background: var(--surface);
-  padding: 12px 16px 12px;
+  padding: 14px var(--pad);
   display: flex;
   align-items: center;
-  gap: 12px;
-  /* divider line at bottom — AppBarDivider equivalent */
+  gap: 14px;
   border-bottom: 1px solid var(--divider);
   position: sticky;
   top: 0;
@@ -54,15 +118,19 @@ html, body {
 }
 
 .app-bar-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
+  font-size: 22px;
   flex-shrink: 0;
+  transition: transform .2s cubic-bezier(.34,1.56,.64,1);
 }
+
+.app-bar-icon:hover { transform: scale(1.08); }
 
 .app-bar-text { flex: 1; min-width: 0; }
 
@@ -73,60 +141,67 @@ html, body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  letter-spacing: -.01em;
 }
 
 .app-bar-sub {
-  font-size: .72rem;
+  font-size: .7rem;
   color: var(--on-hint);
-  font-weight: 500;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: .4px;
+  letter-spacing: .55px;
   margin-top: 1px;
 }
 
-/* ── Scroll body ─────────────────────────────────────────────── */
+/* ── App body ─────────────────────────────────────────────────── */
 .app-body {
   flex: 1;
-  padding: 16px;
+  padding: var(--body-pad);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--gap);
 }
 
-/* ── Field card — matches QRResultCard _buildField ───────────── */
+/* ── Field card ───────────────────────────────────────────────── */
 .field-card {
   background: var(--surf-field);
   border-radius: var(--radius-field);
   border: 1px solid var(--outline-light);
   overflow: hidden;
+  transition: border-color .15s, box-shadow .15s;
+}
+
+.field-card:focus-within {
+  border-color: var(--outline);
+  box-shadow: 0 0 0 3px rgba(0,0,0,.04);
 }
 
 .field-inner {
   display: flex;
   align-items: stretch;
-  gap: 0;
 }
 
 .field-body {
   flex: 1;
-  padding: 12px 14px;
+  padding: 12px 16px;
   min-width: 0;
 }
 
 .field-label {
-  font-size: .72rem;
-  font-weight: 600;
+  font-size: .68rem;
+  font-weight: 700;
   color: var(--on-hint);
   text-transform: uppercase;
-  letter-spacing: .5px;
-  margin-bottom: 3px;
+  letter-spacing: .6px;
+  margin-bottom: 4px;
 }
 
 .field-value {
-  font-size: .93rem;
+  font-size: .92rem;
   color: var(--on-surface);
   word-break: break-all;
-  line-height: 1.45;
+  line-height: 1.5;
+  font-family: var(--font-body);
 }
 
 .field-value a {
@@ -134,9 +209,10 @@ html, body {
   text-decoration: none;
 }
 
-/* copy button inside field */
+/* Copy button inside field */
 .field-copy {
-  width: 44px;
+  width: 46px;
+  min-width: 46px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -146,51 +222,65 @@ html, body {
   background: transparent;
   border-left: 1px solid var(--outline-light);
   color: var(--on-variant);
-  transition: background .12s;
+  transition: background .12s, color .12s;
   -webkit-tap-highlight-color: transparent;
+  border-radius: 0 var(--radius-field) var(--radius-field) 0;
 }
 
+.field-copy:hover  { background: var(--surf-hover); }
 .field-copy:active { background: var(--surf-high); }
 
 .field-copy svg {
   width: 18px;
   height: 18px;
+  pointer-events: none;
 }
 
-/* ── Actions row — matches the Row at bottom of QRResultCard ─── */
+/* ── Actions row ──────────────────────────────────────────────── */
 .actions {
   display: flex;
-  gap: 12px;
-  align-items: stretch;
+  gap: 10px;
+  align-items: center;
   margin-top: 4px;
 }
 
-/* Primary action — gradient + shadow */
+/* Primary gradient button */
 .btn-action {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 16px 20px;
+  padding: clamp(13px, 3vw, 16px) 20px;
   border-radius: var(--radius-btn);
   border: none;
   cursor: pointer;
-  font-size: .95rem;
+  font-size: clamp(.88rem, 2.5vw, .95rem);
   font-weight: 700;
   color: #fff;
   text-decoration: none;
-  font-family: inherit;
-  transition: opacity .15s, transform .1s;
+  font-family: var(--font-body);
+  letter-spacing: -.01em;
+  transition: opacity .15s, transform .12s cubic-bezier(.34,1.56,.64,1), box-shadow .15s;
   -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
 }
 
-.btn-action:active { opacity: .85; transform: scale(.98); }
+.btn-action:hover  { opacity: .93; transform: translateY(-1px); }
+.btn-action:active { opacity: .82; transform: scale(.97); }
 
-/* Copy-all button — matches the square icon button */
+.btn-action svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+/* Copy-all square button */
 .btn-copy-all {
   width: 52px;
   height: 52px;
+  min-width: 52px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -199,97 +289,112 @@ html, body {
   border: 1px solid var(--outline);
   background: var(--surf-high);
   cursor: pointer;
-  transition: background .12s;
+  transition: background .12s, transform .12s;
   -webkit-tap-highlight-color: transparent;
-  align-self: center;
 }
 
-.btn-copy-all:active { background: var(--outline); }
+.btn-copy-all:hover  { background: var(--surf-hover); }
+.btn-copy-all:active { background: var(--outline); transform: scale(.96); }
 
 .btn-copy-all svg {
   width: 22px;
   height: 22px;
+  pointer-events: none;
 }
 
-/* ── State pages — limit / error ─────────────────────────────── */
+/* ── State pages ──────────────────────────────────────────────── */
 .state-page {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px 28px;
+  padding: clamp(32px, 8vw, 60px) clamp(20px, 6vw, 40px);
   text-align: center;
   gap: 0;
 }
 
-.state-icon { font-size: 60px; line-height: 1; margin-bottom: 20px; }
+.state-icon {
+  font-size: clamp(52px, 12vw, 72px);
+  line-height: 1;
+  margin-bottom: 20px;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,.12));
+}
 
 .state-title {
-  font-size: 1.1rem;
+  font-size: clamp(1rem, 3vw, 1.2rem);
   font-weight: 700;
   color: var(--on-surface);
   margin-bottom: 10px;
+  letter-spacing: -.02em;
 }
 
 .state-desc {
-  font-size: .88rem;
+  font-size: clamp(.82rem, 2.2vw, .9rem);
   color: var(--on-variant);
-  line-height: 1.6;
-  max-width: 280px;
+  line-height: 1.65;
+  max-width: 300px;
 }
 
 .state-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  margin-top: 20px;
-  padding: 8px 18px;
-  border-radius: 24px;
-  font-size: .82rem;
-  font-weight: 600;
+  margin-top: 22px;
+  padding: 8px 20px;
+  border-radius: 28px;
+  font-size: .8rem;
+  font-weight: 700;
+  letter-spacing: .02em;
 }
 
-/* ── Loader ──────────────────────────────────────────────────── */
+/* ── Loader ───────────────────────────────────────────────────── */
 .loader-page {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 16px;
+  gap: 18px;
   padding: 40px;
 }
 
 .spinner {
-  width: 36px; height: 36px;
-  border: 3px solid #e0e0e0;
-  border-top-color: #6366f1;
+  width: 38px;
+  height: 38px;
+  border: 3px solid var(--outline);
+  border-top-color: #5856d6;
   border-radius: 50%;
-  animation: spin .7s linear infinite;
+  animation: spin .75s linear infinite;
 }
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
-.loader-text { color: var(--on-hint); font-size: .9rem; }
+.loader-text {
+  color: var(--on-hint);
+  font-size: .88rem;
+  font-weight: 500;
+}
 
-/* ── Toast ───────────────────────────────────────────────────── */
+/* ── Toast ────────────────────────────────────────────────────── */
 .toast {
   position: fixed;
-  bottom: 24px;
+  bottom: clamp(16px, 4vw, 28px);
   left: 50%;
-  transform: translateX(-50%) translateY(60px);
-  background: #1a1a1a;
+  transform: translateX(-50%) translateY(70px);
+  background: #1a1a2e;
   color: #fff;
-  padding: 10px 22px;
-  border-radius: 24px;
-  font-size: .84rem;
-  font-weight: 500;
+  padding: 10px 24px;
+  border-radius: 28px;
+  font-size: .83rem;
+  font-weight: 600;
   pointer-events: none;
-  transition: transform .25s, opacity .25s;
+  transition: transform .28s cubic-bezier(.34,1.56,.64,1), opacity .22s;
   opacity: 0;
   z-index: 999;
   white-space: nowrap;
+  box-shadow: 0 4px 20px rgba(0,0,0,.22);
+  letter-spacing: .01em;
 }
 
 .toast.show {
@@ -297,5 +402,54 @@ html, body {
   opacity: 1;
 }
 
-/* ── RTL ─────────────────────────────────────────────────────── */
-[dir="rtl"] .field-copy { border-left: none; border-right: 1px solid var(--outline-light); }
+/* ── Entry animation ──────────────────────────────────────────── */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.app-body > * {
+  animation: fadeSlideUp .32s cubic-bezier(.25,.46,.45,.94) both;
+}
+
+.app-body > *:nth-child(1) { animation-delay: .04s; }
+.app-body > *:nth-child(2) { animation-delay: .09s; }
+.app-body > *:nth-child(3) { animation-delay: .14s; }
+.app-body > *:nth-child(4) { animation-delay: .18s; }
+.app-body > *:nth-child(5) { animation-delay: .22s; }
+
+/* ── RTL support ──────────────────────────────────────────────── */
+[dir="rtl"] .field-copy {
+  border-left: none;
+  border-right: 1px solid var(--outline-light);
+  border-radius: var(--radius-field) 0 0 var(--radius-field);
+}
+
+/* ── Reduced motion ───────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+  }
+}
+
+/* ── Dark mode ────────────────────────────────────────────────── */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:                 #0f0f14;
+    --surface:            #1c1c24;
+    --surface-container:  #22222c;
+    --surf-high:          rgba(255,255,255,.08);
+    --surf-field:         rgba(255,255,255,.05);
+    --surf-hover:         rgba(255,255,255,.07);
+    --outline:            rgba(255,255,255,.14);
+    --outline-light:      rgba(255,255,255,.08);
+    --divider:            rgba(255,255,255,.07);
+    --on-surface:         #e8e8f0;
+    --on-variant:         #9090a8;
+    --on-hint:            #5e5e72;
+    --shadow-card:        0 2px 24px rgba(0,0,0,.4), 0 1px 6px rgba(0,0,0,.3);
+  }
+
+  .toast { background: #e8e8f0; color: #0f0f14; }
+}

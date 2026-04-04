@@ -4,7 +4,7 @@
 
 const t = (k) => window.i18n.t(k);
 
-/* ── SVG icons (inline — no icon font needed) ─────────────────── */
+/* ── SVG icons ────────────────────────────────────────────────── */
 const SVG = {
   copy:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`,
   link:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`,
@@ -20,17 +20,17 @@ const SVG = {
   ext:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`,
 };
 
-/* ── Type config — matches app colors exactly ─────────────────── */
+/* ── Type config — mirrors Flutter _typeColor / _typeIcon ─────── */
 const TYPE = {
-  url:      { emoji:'🔗', color:'#2563eb', shadow:'rgba(37,99,235,.35)',  icon: SVG.ext,   btnKey:'btn_open',   actionKey:'btn_open'  },
-  phone:    { emoji:'📞', color:'#16a34a', shadow:'rgba(22,163,74,.35)',  icon: SVG.phone, btnKey:'btn_call',   actionKey:'btn_call'  },
-  email:    { emoji:'✉️', color:'#ea580c', shadow:'rgba(234,88,12,.35)',  icon: SVG.email, btnKey:'btn_email',  actionKey:'btn_email' },
-  sms:      { emoji:'💬', color:'#7c3aed', shadow:'rgba(124,58,237,.35)', icon: SVG.sms,   btnKey:'btn_sms',    actionKey:'btn_sms'   },
-  wifi:     { emoji:'📶', color:'#0d9488', shadow:'rgba(13,148,136,.35)', icon: SVG.wifi,  btnKey:'btn_copy_pass', actionKey:null     },
-  location: { emoji:'📍', color:'#dc2626', shadow:'rgba(220,38,38,.35)',  icon: SVG.map,   btnKey:'btn_map',    actionKey:'btn_map'   },
-  contact:  { emoji:'👤', color:'#6366f1', shadow:'rgba(99,102,241,.35)', icon: SVG.user,  btnKey:'btn_call',   actionKey:'btn_call'  },
-  event:    { emoji:'📅', color:'#4338ca', shadow:'rgba(67,56,202,.35)',  icon: SVG.cal,   btnKey:null,         actionKey:null        },
-  text:     { emoji:'📝', color:'#6366f1', shadow:'rgba(99,102,241,.35)', icon: SVG.text,  btnKey:null,         actionKey:null        },
+  url:      { emoji:'🔗', color:'#2563eb', shadow:'rgba(37,99,235,.32)',   icon: SVG.ext,   btnKey:'btn_open',      typeKey:'type_url'      },
+  phone:    { emoji:'📞', color:'#16a34a', shadow:'rgba(22,163,74,.32)',   icon: SVG.phone, btnKey:'btn_call',      typeKey:'type_phone'    },
+  email:    { emoji:'✉️', color:'#ea580c', shadow:'rgba(234,88,12,.32)',   icon: SVG.email, btnKey:'btn_email',     typeKey:'type_email'    },
+  sms:      { emoji:'💬', color:'#7c3aed', shadow:'rgba(124,58,237,.32)',  icon: SVG.sms,   btnKey:'btn_sms',       typeKey:'type_sms'      },
+  wifi:     { emoji:'📶', color:'#0d9488', shadow:'rgba(13,148,136,.32)',  icon: SVG.wifi,  btnKey:'btn_copy_pass', typeKey:'type_wifi'     },
+  location: { emoji:'📍', color:'#dc2626', shadow:'rgba(220,38,38,.32)',   icon: SVG.map,   btnKey:'btn_map',       typeKey:'type_location' },
+  contact:  { emoji:'👤', color:'#6366f1', shadow:'rgba(99,102,241,.32)',  icon: SVG.user,  btnKey:'btn_call',      typeKey:'type_contact'  },
+  event:    { emoji:'📅', color:'#4338ca', shadow:'rgba(67,56,202,.32)',   icon: SVG.cal,   btnKey:null,            typeKey:'type_event'    },
+  text:     { emoji:'📝', color:'#6366f1', shadow:'rgba(99,102,241,.32)',  icon: SVG.text,  btnKey:null,            typeKey:'type_text'     },
 };
 
 /* ── Helpers ─────────────────────────────────────────────────── */
@@ -43,7 +43,7 @@ function esc(s) {
     .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// Each field = app-style card with label, value and inline copy button
+/* Field card — matches Flutter _buildField exactly */
 function field(labelKey, value, copyValue) {
   if (!value && value !== 0) return '';
   const val  = esc(String(value));
@@ -57,38 +57,38 @@ function field(labelKey, value, copyValue) {
           <div class="field-label">${t(labelKey)}</div>
           <div class="field-value" translate="no" id="${id}">${val}</div>
         </div>
-        <button class="field-copy" onclick="qrCopy('${id}')" title="${t('btn_copy')}">
+        <button class="field-copy" onclick="qrCopy('${id}')" aria-label="${t('btn_copy')}">
           ${SVG.copy}
         </button>
       </div>
     </div>`;
 }
 
-// Primary action button with gradient + drop shadow
+/* Primary action button — gradient + shadow like Flutter */
 function actionBtn(href, labelKey, cfg, isBtn) {
-  const label  = t(labelKey);
-  const style  = `background:linear-gradient(135deg,${cfg.color},${cfg.color}cc);`
-               + `box-shadow:0 4px 14px ${cfg.shadow};`;
-  const icon   = cfg.icon;
+  const label = t(labelKey);
+  const style = `background:linear-gradient(135deg,${cfg.color},${cfg.color}cc);`
+              + `box-shadow:0 4px 16px ${cfg.shadow};`;
+  const icon  = cfg.icon;
   if (isBtn) {
     return `<button class="btn-action" style="${style}" onclick="location.href='${esc(href)}'">${icon}${label}</button>`;
   }
   return `<a class="btn-action" href="${esc(href)}" style="${style}">${icon}${label}</a>`;
 }
 
-// Copy-all button (square icon, matches app's copy icon button)
+/* Copy-all icon button */
 function copyAllBtn(cfg) {
   return `
-    <button class="btn-copy-all" onclick="qrCopyAll()" title="${t('btn_copy')}"
+    <button class="btn-copy-all" onclick="qrCopyAll()" aria-label="${t('btn_copy')}"
       style="color:${cfg.color}">
       ${SVG.copy}
     </button>`;
 }
 
-/* ── App scaffold: appbar + scrollable body ──────────────────── */
+/* ── App scaffold — AppBar + scrollable body ──────────────────── */
 function scaffold(cfg, typeKey, label, fieldsHtml, actionsHtml) {
   const typeName = t(typeKey);
-  const bg = cfg.color + '1a'; // 10% opacity
+  const bg = cfg.color + '1e'; /* ~12% opacity tint like Flutter */
 
   return `
     <div class="app-bar">
@@ -146,7 +146,7 @@ const renderers = {
   },
 
   wifi(d, label) {
-    const cfg = TYPE.wifi;
+    const cfg    = TYPE.wifi;
     _copyAllText = '';
     const passId = 'wifi_p';
     const passHtml = d.password
@@ -155,7 +155,7 @@ const renderers = {
              <div class="field-label">${t('lbl_password')}</div>
              <div class="field-value" translate="no" id="${passId}">${esc(d.password)}</div>
            </div>
-           <button class="field-copy" onclick="qrCopy('${passId}')">${SVG.copy}</button>
+           <button class="field-copy" onclick="qrCopy('${passId}')" aria-label="${t('btn_copy')}">${SVG.copy}</button>
          </div></div>`
       : field('lbl_password', t('hidden'));
     const fields = field('lbl_network', d.ssid)
@@ -163,7 +163,8 @@ const renderers = {
                  + passHtml;
     _copyAllText += t('lbl_password') + ': ' + (d.password || '') + '\n';
     const acts = d.password
-      ? `<button class="btn-action" style="background:linear-gradient(135deg,${cfg.color},${cfg.color}cc);box-shadow:0 4px 14px ${cfg.shadow};"
+      ? `<button class="btn-action"
+           style="background:linear-gradient(135deg,${cfg.color},${cfg.color}cc);box-shadow:0 4px 16px ${cfg.shadow};"
            onclick="qrCopy('${passId}')">${SVG.wifi} ${t('btn_copy_pass')}</button>`
         + copyAllBtn(cfg)
       : '';
@@ -220,7 +221,7 @@ const renderers = {
   },
 };
 
-/* ── State pages ─────────────────────────────────────────────── */
+/* ── State pages ──────────────────────────────────────────────── */
 function statePage(icon, titleKey, descKey, badgeBg, badgeColor, badgeKey) {
   return `
     <div class="state-page">
@@ -238,10 +239,10 @@ window.render = {
     app.innerHTML = fn(data, label || '');
   },
   limitReached(app) {
-    app.innerHTML = statePage('🔒','limit_title','limit_desc','#fef2f2','#dc2626','limit_badge');
+    app.innerHTML = statePage('🔒','limit_title','limit_desc','rgba(220,38,38,.1)','#dc2626','limit_badge');
   },
   deviceLimit(app) {
-    app.innerHTML = statePage('📵','device_title','device_desc','#fff7ed','#ea580c','device_badge');
+    app.innerHTML = statePage('📵','device_title','device_desc','rgba(234,88,12,.1)','#ea580c','device_badge');
   },
   error(app, msgKey) {
     app.innerHTML = `
@@ -253,7 +254,7 @@ window.render = {
   },
 };
 
-/* ── Global helpers ──────────────────────────────────────────── */
+/* ── Global copy helpers ──────────────────────────────────────── */
 window.qrCopy = function(id) {
   const el = document.getElementById(id);
   if (!el) return;
@@ -270,7 +271,7 @@ function showToast() {
   toast.textContent = t('btn_copied');
   toast.classList.add('show');
   clearTimeout(window._toastTimer);
-  window._toastTimer = setTimeout(() => toast.classList.remove('show'), 2000);
+  window._toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
 }
 
 })();
