@@ -1,4 +1,4 @@
-// js/main.js
+/* /workspaces/QR-Code-Page/js/main.js */
 (function(){
 const URL_  = "https://ejuprlcqnesqfedkxoxa.supabase.co";
 const ANON  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVqdXBybGNxbmVzcWZlZGt4b3hhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwMzQwNjUsImV4cCI6MjA4OTYxMDA2NX0.0FDt5y_QroHKgm7YmkicZIJ8ci-XlS3lQvBpnWT1P_8";
@@ -16,11 +16,18 @@ async function main(){
     fullCode=atob(p.replace(/-/g,'+').replace(/_/g,'/'));
   }catch(_){ render.error(app,'err_invalid'); return; }
 
-  // ── محلي أولاً ───────────────────────────────────────────────
+  // ── فحص localStorage أولاً ───────────────────────────────────────
   if(store.isDisabled(fullCode)){    render.limitReached(app); return; }
   if(store.isDeviceLimited(fullCode)){render.deviceLimit(app);  return; }
 
-  // ── Supabase ──────────────────────────────────────────────────
+  // ── فحص session cache (منع الازدواجية من نفس الجلسة) ────────────
+  const cached = store.getCachedResult(fullCode);
+  if(cached){
+    render.type(app, cached.data_type, cached.data, cached.label || '');
+    return;
+  }
+
+  // ── Supabase ──────────────────────────────────────────────────────
   try{
     const res=await fetch(`${URL_}/functions/v1/scan_code`,{
       method:'POST',
@@ -43,6 +50,13 @@ async function main(){
     if(data.result!=='success'||!data.data){
       render.error(app,'err_notfound'); return;
     }
+
+    // ── تخزين في session cache لمنع إعادة الاحتساب عند refresh ──────
+    store.cacheResult(fullCode, {
+      data_type: data.data_type,
+      data:      data.data,
+      label:     data.label || '',
+    });
 
     render.type(app, data.data_type, data.data, data.label||'');
   }catch(_){

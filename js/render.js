@@ -1,4 +1,4 @@
-// js/render.js
+/* /workspaces/QR-Code-Page/js/render.js */
 
 (function () {
 
