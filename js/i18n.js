@@ -68,6 +68,9 @@ const T = {
     err_network:     'تعذّر الاتصال، تحقق من الإنترنت',
     hidden:          '(مخفية)',
     open:            'فتح',
+    expired_title:   'انتهت صلاحية هذا الرمز',
+    expired_desc:    'لم يعد هذا الرمز متاحاً لأن تاريخ صلاحيته قد انتهى',
+    expired_badge:   '⏱ منتهي الصلاحية',
   },
 
   // ── English ───────────────────────────────────────────────────
@@ -123,6 +126,9 @@ const T = {
     err_network:     'Connection failed, check your internet',
     hidden:          '(hidden)',
     open:            'Open',
+    expired_title:   'QR Code Expired',
+    expired_desc:    'This QR code is no longer available as its expiry date has passed',
+    expired_badge:   '⏱ Expired',
   },
 
   // ── Français ──────────────────────────────────────────────────
@@ -178,6 +184,9 @@ const T = {
     err_network:     'Connexion échouée, vérifiez votre internet',
     hidden:          '(caché)',
     open:            'Ouvrir',
+    expired_title:   'Code QR expiré',
+    expired_desc:    'Ce code QR n\'est plus disponible car sa date d\'expiration est dépassée',
+    expired_badge:   '⏱ Expiré',
   },
 
   // ── Türkçe ────────────────────────────────────────────────────
@@ -233,7 +242,10 @@ const T = {
     err_network:     'Bağlantı başarısız, internetinizi kontrol edin',
     hidden:          '(gizli)',
     open:            'Aç',
-  },
+    expired_title:   'QR Kodun Süresi Doldu',
+    expired_desc:    'Bu QR kodun geçerlilik süresi dolduğu için artık kullanılamaz',
+    expired_badge:   '⏱ Süresi Doldu',
+      },
 
   // ── Deutsch ───────────────────────────────────────────────────
   de: {
@@ -288,6 +300,9 @@ const T = {
     err_network:     'Verbindung fehlgeschlagen, Internetverbindung prüfen',
     hidden:          '(verborgen)',
     open:            'Öffnen',
+    expired_title:   'QR-Code abgelaufen',
+    expired_desc:    'Dieser QR-Code ist nicht mehr verfügbar, da er abgelaufen ist',
+    expired_badge:   '⏱ Abgelaufen',
   },
 
   // ── Español ───────────────────────────────────────────────────
@@ -343,6 +358,9 @@ const T = {
     err_network:     'Error de conexión, comprueba tu internet',
     hidden:          '(oculta)',
     open:            'Abrir',
+    expired_title:   'Código QR caducado',
+    expired_desc:    'Este código QR ya no está disponible porque ha caducado',
+    expired_badge:   '⏱ Caducado',
   },
 
   // ── 中文 (Chinese Simplified) ─────────────────────────────────
@@ -398,6 +416,9 @@ const T = {
     err_network:     '连接失败，请检查网络',
     hidden:          '(已隐藏)',
     open:            '打开',
+    expired_title:   '二维码已过期',
+    expired_desc:    '此二维码已超过有效期，无法再使用',
+    expired_badge:   '⏱ 已过期',
   },
 
   // ── Русский ───────────────────────────────────────────────────
@@ -453,6 +474,9 @@ const T = {
     err_network:     'Ошибка соединения, проверьте интернет',
     hidden:          '(скрыт)',
     open:            'Открыть',
+    expired_title:   'QR-код истёк',
+    expired_desc:    'Этот QR-код больше недоступен, так как срок его действия истёк',
+    expired_badge:   '⏱ Истёк',
   },
 
   // ── 日本語 ────────────────────────────────────────────────────
@@ -508,6 +532,9 @@ const T = {
     err_network:     '接続失敗、インターネットを確認してください',
     hidden:          '(非表示)',
     open:            '開く',
+    expired_title:   'QRコードの有効期限切れ',
+    expired_desc:    'このQRコードは有効期限が切れたため利用できません',
+    expired_badge:   '⏱ 期限切れ',
   },
 
   // ── Português ─────────────────────────────────────────────────
@@ -563,6 +590,9 @@ const T = {
     err_network:     'Falha na conexão, verifique sua internet',
     hidden:          '(oculta)',
     open:            'Abrir',
+    expired_title:   'Código QR expirado',
+    expired_desc:    'Este código QR não está mais disponível pois sua data de validade passou',
+    expired_badge:   '⏱ Expirado',
   },
 
   // ── हिन्दी ────────────────────────────────────────────────────
@@ -618,6 +648,9 @@ const T = {
     err_network:     'कनेक्शन विफल, इंटरनेट जाँचें',
     hidden:          '(छुपा हुआ)',
     open:            'खोलें',
+    expired_title:   'QR कोड की समय सीमा समाप्त',
+    expired_desc:    'यह QR कोड अब उपलब्ध नहीं है क्योंकि इसकी समय सीमा समाप्त हो गई है',
+    expired_badge:   '⏱ समाप्त',
   },
 
   // ── فارسی ────────────────────────────────────────────────────
@@ -673,6 +706,9 @@ const T = {
     err_network:     'اتصال ناموفق، اینترنت را بررسی کنید',
     hidden:          '(پنهان)',
     open:            'باز کن',
+    expired_title:   'کد QR منقضی شده',
+    expired_desc:    'این کد QR دیگر در دسترس نیست زیرا تاریخ انقضای آن گذشته است',
+    expired_badge:   '⏱ منقضی شده',
   },
 
 };

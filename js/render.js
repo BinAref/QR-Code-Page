@@ -20,32 +20,31 @@ const SVG = {
   ext:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`,
 };
 
-/* ── Type config — mirrors Flutter _typeColor / _typeIcon ─────── */
+/* ── Type config ─────────────────────────────────────────────── */
 const TYPE = {
-  url:      { emoji:'🔗', color:'#2563eb', shadow:'rgba(37,99,235,.32)',   icon: SVG.ext,   btnKey:'btn_open',      typeKey:'type_url'      },
-  phone:    { emoji:'📞', color:'#16a34a', shadow:'rgba(22,163,74,.32)',   icon: SVG.phone, btnKey:'btn_call',      typeKey:'type_phone'    },
-  email:    { emoji:'✉️', color:'#ea580c', shadow:'rgba(234,88,12,.32)',   icon: SVG.email, btnKey:'btn_email',     typeKey:'type_email'    },
-  sms:      { emoji:'💬', color:'#7c3aed', shadow:'rgba(124,58,237,.32)',  icon: SVG.sms,   btnKey:'btn_sms',       typeKey:'type_sms'      },
-  wifi:     { emoji:'📶', color:'#0d9488', shadow:'rgba(13,148,136,.32)',  icon: SVG.wifi,  btnKey:'btn_copy_pass', typeKey:'type_wifi'     },
-  location: { emoji:'📍', color:'#dc2626', shadow:'rgba(220,38,38,.32)',   icon: SVG.map,   btnKey:'btn_map',       typeKey:'type_location' },
-  contact:  { emoji:'👤', color:'#6366f1', shadow:'rgba(99,102,241,.32)',  icon: SVG.user,  btnKey:'btn_call',      typeKey:'type_contact'  },
-  event:    { emoji:'📅', color:'#4338ca', shadow:'rgba(67,56,202,.32)',   icon: SVG.cal,   btnKey:null,            typeKey:'type_event'    },
-  text:     { emoji:'📝', color:'#6366f1', shadow:'rgba(99,102,241,.32)',  icon: SVG.text,  btnKey:null,            typeKey:'type_text'     },
+  url:      { emoji:'🔗', color:'#2563eb', shadow:'rgba(37,99,235,.32)',  icon:SVG.ext,   btnKey:'btn_open',      typeKey:'type_url'      },
+  phone:    { emoji:'📞', color:'#16a34a', shadow:'rgba(22,163,74,.32)',  icon:SVG.phone, btnKey:'btn_call',      typeKey:'type_phone'    },
+  email:    { emoji:'✉️', color:'#ea580c', shadow:'rgba(234,88,12,.32)',  icon:SVG.email, btnKey:'btn_email',     typeKey:'type_email'    },
+  sms:      { emoji:'💬', color:'#7c3aed', shadow:'rgba(124,58,237,.32)', icon:SVG.sms,   btnKey:'btn_sms',       typeKey:'type_sms'      },
+  wifi:     { emoji:'📶', color:'#0d9488', shadow:'rgba(13,148,136,.32)', icon:SVG.wifi,  btnKey:'btn_copy_pass', typeKey:'type_wifi'     },
+  location: { emoji:'📍', color:'#dc2626', shadow:'rgba(220,38,38,.32)',  icon:SVG.map,   btnKey:'btn_map',       typeKey:'type_location' },
+  contact:  { emoji:'👤', color:'#6366f1', shadow:'rgba(99,102,241,.32)', icon:SVG.user,  btnKey:'btn_call',      typeKey:'type_contact'  },
+  event:    { emoji:'📅', color:'#4338ca', shadow:'rgba(67,56,202,.32)',  icon:SVG.cal,   btnKey:null,            typeKey:'type_event'    },
+  text:     { emoji:'📝', color:'#6366f1', shadow:'rgba(99,102,241,.32)', icon:SVG.text,  btnKey:null,            typeKey:'type_text'     },
 };
 
 /* ── Helpers ─────────────────────────────────────────────────── */
 let _copyAllText = '';
 
 function esc(s) {
-  if (!s) return '';
+  if (s == null) return '';
   return String(s)
     .replace(/&/g,'&amp;').replace(/</g,'&lt;')
     .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-/* Field card — matches Flutter _buildField exactly */
 function field(labelKey, value, copyValue) {
-  if (!value && value !== 0) return '';
+  if (value == null || value === '') return '';
   const val  = esc(String(value));
   const copy = copyValue ?? String(value);
   const id   = 'f_' + Math.random().toString(36).slice(2);
@@ -64,32 +63,23 @@ function field(labelKey, value, copyValue) {
     </div>`;
 }
 
-/* Primary action button — gradient + shadow like Flutter */
 function actionBtn(href, labelKey, cfg, isBtn) {
   const label = t(labelKey);
   const style = `background:linear-gradient(135deg,${cfg.color},${cfg.color}cc);`
               + `box-shadow:0 4px 16px ${cfg.shadow};`;
-  const icon  = cfg.icon;
   if (isBtn) {
-    return `<button class="btn-action" style="${style}" onclick="location.href='${esc(href)}'">${icon}${label}</button>`;
+    return `<button class="btn-action" style="${style}" onclick="location.href='${esc(href)}'">${cfg.icon}${label}</button>`;
   }
-  return `<a class="btn-action" href="${esc(href)}" style="${style}">${icon}${label}</a>`;
+  return `<a class="btn-action" href="${esc(href)}" style="${style}">${cfg.icon}${label}</a>`;
 }
 
-/* Copy-all icon button */
 function copyAllBtn(cfg) {
-  return `
-    <button class="btn-copy-all" onclick="qrCopyAll()" aria-label="${t('btn_copy')}"
-      style="color:${cfg.color}">
-      ${SVG.copy}
-    </button>`;
+  return `<button class="btn-copy-all" onclick="qrCopyAll()" aria-label="${t('btn_copy')}" style="color:${cfg.color}">${SVG.copy}</button>`;
 }
 
-/* ── App scaffold — AppBar + scrollable body ──────────────────── */
 function scaffold(cfg, typeKey, label, fieldsHtml, actionsHtml) {
   const typeName = t(typeKey);
-  const bg = cfg.color + '1e'; /* ~12% opacity tint like Flutter */
-
+  const bg = cfg.color + '1e';
   return `
     <div class="app-bar">
       <div class="app-bar-icon" style="background:${bg};">${cfg.emoji}</div>
@@ -127,19 +117,18 @@ const renderers = {
     const cfg  = TYPE.email;
     _copyAllText = '';
     const subj = d.subject ? '?subject=' + encodeURIComponent(d.subject) : '';
-    const body = d.body ? (subj?'&':'?') + 'body=' + encodeURIComponent(d.body) : '';
-    const fields = field('lbl_email', d.email)
+    const body = d.body    ? (subj?'&':'?') + 'body=' + encodeURIComponent(d.body) : '';
+    const fields = field('lbl_email',   d.email)
                  + field('lbl_subject', d.subject)
-                 + field('lbl_body', d.body);
-    const acts   = actionBtn('mailto:' + d.email + subj + body, 'btn_email', cfg)
-                 + copyAllBtn(cfg);
+                 + field('lbl_body',    d.body);
+    const acts = actionBtn('mailto:' + d.email + subj + body, 'btn_email', cfg) + copyAllBtn(cfg);
     return scaffold(cfg, 'type_email', label, fields, acts);
   },
 
   sms(d, label) {
     const cfg = TYPE.sms;
     _copyAllText = '';
-    const fields = field('lbl_phone', d.phone)
+    const fields = field('lbl_phone',   d.phone)
                  + field('lbl_message', d.message);
     const acts   = actionBtn('sms:' + d.phone, 'btn_sms', cfg) + copyAllBtn(cfg);
     return scaffold(cfg, 'type_sms', label, fields, acts);
@@ -158,7 +147,7 @@ const renderers = {
            <button class="field-copy" onclick="qrCopy('${passId}')" aria-label="${t('btn_copy')}">${SVG.copy}</button>
          </div></div>`
       : field('lbl_password', t('hidden'));
-    const fields = field('lbl_network', d.ssid)
+    const fields = field('lbl_network',  d.ssid)
                  + field('lbl_security', d.security)
                  + passHtml;
     _copyAllText += t('lbl_password') + ': ' + (d.password || '') + '\n';
@@ -174,10 +163,14 @@ const renderers = {
   location(d, label) {
     const cfg     = TYPE.location;
     _copyAllText  = '';
-    const mapsUrl = `https://maps.google.com/?q=${d.lat},${d.lng}`;
-    const fields  = field('lbl_coords', `${d.lat}, ${d.lng}`)
+    const lat     = d.lat ?? '';
+    const lng     = d.lng ?? '';
+    const mapsUrl = `https://maps.google.com/?q=${lat},${lng}`;
+    const fields  = field('lbl_coords',   lat && lng ? `${lat}, ${lng}` : (lat || lng))
                   + field('lbl_location', d.label || d.name);
-    const acts    = actionBtn(mapsUrl, 'btn_map', cfg) + copyAllBtn(cfg);
+    const acts    = (lat && lng)
+      ? actionBtn(mapsUrl, 'btn_map', cfg) + copyAllBtn(cfg)
+      : copyAllBtn(cfg);
     return scaffold(cfg, 'type_location', label, fields, acts);
   },
 
@@ -212,11 +205,14 @@ const renderers = {
   },
 
   text(d, label) {
-    const cfg    = TYPE.text;
+    const cfg = TYPE.text;
     _copyAllText = '';
-    const content = d.text || d.raw || JSON.stringify(d);
-    const fields  = field('lbl_content', content);
-    const acts    = copyAllBtn(cfg);
+    // يدعم text, raw, أو أي قيمة string أولى في الـ object
+    const content = d.text || d.raw
+      || Object.values(d).find(v => typeof v === 'string' && v.length > 0)
+      || '';
+    const fields = field('lbl_content', content);
+    const acts   = copyAllBtn(cfg);
     return scaffold(cfg, 'type_text', label, fields, acts);
   },
 };
@@ -240,6 +236,9 @@ window.render = {
   },
   limitReached(app) {
     app.innerHTML = statePage('🔒','limit_title','limit_desc','rgba(220,38,38,.1)','#dc2626','limit_badge');
+  },
+  expired(app) {
+    app.innerHTML = statePage('⏰','expired_title','expired_desc','rgba(234,88,12,.1)','#ea580c','expired_badge');
   },
   deviceLimit(app) {
     app.innerHTML = statePage('📵','device_title','device_desc','rgba(234,88,12,.1)','#ea580c','device_badge');
