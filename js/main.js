@@ -22,6 +22,9 @@ async function getDeviceId() {
   // نفس الصيغة بالضبط كما في Dart: '${screenW}x${screenH}|$tzOffset|$cores'
   const raw = `${w}x${h}|${tzOffset}|${cores}`;
 
+  // DEBUG — احذف هذا السطر بعد التحقق
+  console.log('[FINGERPRINT] raw="' + raw + '"');
+
   // Hash SHA-256 → hwfp_XXXXXXXX
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(raw));
   const hex = Array.from(new Uint8Array(buf))
