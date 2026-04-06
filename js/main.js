@@ -12,15 +12,12 @@ async function getDeviceId() {
   const w = Math.min(screen.width, screen.height);
   const h = Math.max(screen.width, screen.height);
 
-  // timezone offset بالدقائق
-  // JS: getTimezoneOffset() يرجع UTC-offset بالعكس → نعكسه ليطابق Dart
+  // timezone offset بالدقائق — نفس ما يحسبه Dart: DateTime.now().timeZoneOffset.inMinutes
   const tzOffset = -new Date().getTimezoneOffset();
 
-  // عدد أنوية المعالج
-  const cores = navigator.hardwareConcurrency || 0;
-
-  // نفس الصيغة بالضبط كما في Dart: '${screenW}x${screenH}|$tzOffset|$cores'
-  const raw = `${w}x${h}|${tzOffset}|${cores}`;
+  // بدون CPU cores — يختلف بين المتصفح والتطبيق
+  // نفس الصيغة بالضبط كما في Dart: '${screenW}x${screenH}|$tzOffset'
+  const raw = `${w}x${h}|${tzOffset}`;
 
   // DEBUG — احذف هذا السطر بعد التحقق
   console.log('[FINGERPRINT] raw="' + raw + '"');
