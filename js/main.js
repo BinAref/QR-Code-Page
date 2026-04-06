@@ -4,53 +4,46 @@ const URL_  = "https://ejuprlcqnesqfedkxoxa.supabase.co";
 const ANON  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVqdXBybGNxbmVzcWZlZGt4b3hhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwMzQwNjUsImV4cCI6MjA4OTYxMDA2NX0.0FDt5y_QroHKgm7YmkicZIJ8ci-XlS3lQvBpnWT1P_8";
 
 // ── Hardware Device Fingerprint ───────────────────────────────────────
-// يعتمد على GPU + hardware specs → نفس النتيجة في كل المتصفحات على نفس الجهاز
-// الـ incognito / cookies / localStorage لا تؤثر على النتيجة
+// بدون Canvas (يختلف بين normal وincognito)
+// يعتمد على: WebGL GPU renderer + موديل الجهاز + hardware specs
+// نفس النتيجة في Chrome / Firefox / Safari / Incognito على نفس الجهاز
 async function getDeviceId() {
   const parts = [];
 
-  // 1. Canvas fingerprint — يعتمد على GPU rendering
-  //    Chrome/Firefox/Safari على نفس الجهاز ينتجون نفس البيكسلات
+  // 1. موديل الجهاز الفعلي — Chrome Android/Desktop فقط، لكنه أدق شيء ممكن
   try {
-    const c = document.createElement('canvas');
-    c.width = 240; c.height = 60;
-    const ctx = c.getContext('2d');
-    ctx.textBaseline = 'top';
-    ctx.font = 'bold 16px Arial, Helvetica, sans-serif';
-    ctx.fillStyle = '#6366f1';
-    ctx.fillRect(0, 0, 240, 60);
-    ctx.fillStyle = '#fff';
-    ctx.fillText('QRaise \uD83D\uDD11 hwfp', 4, 4);
-    ctx.fillStyle = 'rgba(255,165,0,0.7)';
-    ctx.beginPath(); ctx.arc(180, 30, 18, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = 'rgba(0,255,128,0.5)';
-    ctx.fillRect(10, 35, 60, 16);
-    parts.push(c.toDataURL('image/png').slice(-100));
-  } catch (_) {}
+    const ua = await navigator.userAgentData?.getHighEntropyValues(
+      ['model', 'platformVersion', 'architecture', 'bitness']
+    );
+    if (ua?.model)        parts.push('m:' + ua.model);           // "Pixel 8 Pro"
+    if (ua?.architecture) parts.push('a:' + ua.architecture);    // "arm"
+    if (ua?.bitness)      parts.push('b:' + ua.bitness);
+  } catch(_) {}
 
-  // 2. WebGL renderer — اسم GPU الفعلي (ثابت 100% عبر كل المتصفحات)
+  // 2. WebGL GPU renderer — ثابت 100% عبر كل المتصفحات (نفس GPU chip)
   try {
     const gl = document.createElement('canvas').getContext('webgl')
             || document.createElement('canvas').getContext('experimental-webgl');
     if (gl) {
       const ext = gl.getExtension('WEBGL_debug_renderer_info');
       if (ext) {
-        parts.push(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL));
-        parts.push(gl.getParameter(ext.UNMASKED_VENDOR_WEBGL));
+        parts.push('gr:' + gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)); // "Adreno (TM) 650"
+        parts.push('gv:' + gl.getParameter(ext.UNMASKED_VENDOR_WEBGL));
       }
-      parts.push(gl.getParameter(gl.VERSION));
-      parts.push(gl.getParameter(gl.SHADING_LANGUAGE_VERSION));
+      parts.push('gver:' + gl.getParameter(gl.VERSION));
     }
-  } catch (_) {}
+  } catch(_) {}
 
-  // 3. Hardware specs (لا علاقة له بالمتصفح)
-  parts.push(screen.width + 'x' + screen.height + 'x' + screen.colorDepth);
-  parts.push(String(navigator.hardwareConcurrency || 0));  // عدد CPU cores
-  parts.push(String(navigator.deviceMemory || 0));         // حجم RAM
-  parts.push(navigator.platform || '');
-  parts.push(Intl.DateTimeFormat().resolvedOptions().timeZone);
+  // 3. Hardware specs — لا علاقة لها بالمتصفح أو الـ incognito
+  parts.push('s:' + screen.width + 'x' + screen.height + 'x' + screen.colorDepth);
+  parts.push('c:' + String(navigator.hardwareConcurrency || 0)); // عدد CPU cores
+  parts.push('r:' + String(navigator.deviceMemory || 0));        // حجم RAM بالـ GB
+  parts.push('tz:' + Intl.DateTimeFormat().resolvedOptions().timeZone);
+  // platform مفيد على Desktop
+  const plt = navigator.userAgentData?.platform || '';
+  if (plt) parts.push('p:' + plt);
 
-  // 4. Hash SHA-256 → معرّف ثابت للجهاز
+  // 4. Hash SHA-256 → hwfp_XXXXXXXX
   const raw = parts.join('|');
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(raw));
   const hex = Array.from(new Uint8Array(buf))
