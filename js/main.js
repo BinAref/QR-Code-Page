@@ -3,48 +3,26 @@
 const URL_  = "https://ejuprlcqnesqfedkxoxa.supabase.co";
 const ANON  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVqdXBybGNxbmVzcWZlZGt4b3hhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwMzQwNjUsImV4cCI6MjA4OTYxMDA2NX0.0FDt5y_QroHKgm7YmkicZIJ8ci-XlS3lQvBpnWT1P_8";
 
-// ── Hardware Device Fingerprint ───────────────────────────────────────
-// بدون Canvas (يختلف بين normal وincognito)
-// يعتمد على: WebGL GPU renderer + موديل الجهاز + hardware specs
-// نفس النتيجة في Chrome / Firefox / Safari / Incognito على نفس الجهاز
+// ── Cross-Platform Device Fingerprint ────────────────────────────────
+// نفس الخوارزمية المستخدمة في تطبيق QRaise (smart_account_service.dart)
+// البيانات المشتركة: screen logical size | timezone offset | cpu cores
+// نفس النتيجة في التطبيق وكل المتصفحات على نفس الجهاز
 async function getDeviceId() {
-  const parts = [];
+  // حجم الشاشة المنطقي — بترتيب ثابت (portrait أولاً)
+  const w = Math.min(screen.width, screen.height);
+  const h = Math.max(screen.width, screen.height);
 
-  // 1. موديل الجهاز الفعلي — Chrome Android/Desktop فقط، لكنه أدق شيء ممكن
-  try {
-    const ua = await navigator.userAgentData?.getHighEntropyValues(
-      ['model', 'platformVersion', 'architecture', 'bitness']
-    );
-    if (ua?.model)        parts.push('m:' + ua.model);           // "Pixel 8 Pro"
-    if (ua?.architecture) parts.push('a:' + ua.architecture);    // "arm"
-    if (ua?.bitness)      parts.push('b:' + ua.bitness);
-  } catch(_) {}
+  // timezone offset بالدقائق
+  // JS: getTimezoneOffset() يرجع UTC-offset بالعكس → نعكسه ليطابق Dart
+  const tzOffset = -new Date().getTimezoneOffset();
 
-  // 2. WebGL GPU renderer — ثابت 100% عبر كل المتصفحات (نفس GPU chip)
-  try {
-    const gl = document.createElement('canvas').getContext('webgl')
-            || document.createElement('canvas').getContext('experimental-webgl');
-    if (gl) {
-      const ext = gl.getExtension('WEBGL_debug_renderer_info');
-      if (ext) {
-        parts.push('gr:' + gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)); // "Adreno (TM) 650"
-        parts.push('gv:' + gl.getParameter(ext.UNMASKED_VENDOR_WEBGL));
-      }
-      parts.push('gver:' + gl.getParameter(gl.VERSION));
-    }
-  } catch(_) {}
+  // عدد أنوية المعالج
+  const cores = navigator.hardwareConcurrency || 0;
 
-  // 3. Hardware specs — لا علاقة لها بالمتصفح أو الـ incognito
-  parts.push('s:' + screen.width + 'x' + screen.height + 'x' + screen.colorDepth);
-  parts.push('c:' + String(navigator.hardwareConcurrency || 0)); // عدد CPU cores
-  parts.push('r:' + String(navigator.deviceMemory || 0));        // حجم RAM بالـ GB
-  parts.push('tz:' + Intl.DateTimeFormat().resolvedOptions().timeZone);
-  // platform مفيد على Desktop
-  const plt = navigator.userAgentData?.platform || '';
-  if (plt) parts.push('p:' + plt);
+  // نفس الصيغة بالضبط كما في Dart: '${screenW}x${screenH}|$tzOffset|$cores'
+  const raw = `${w}x${h}|${tzOffset}|${cores}`;
 
-  // 4. Hash SHA-256 → hwfp_XXXXXXXX
-  const raw = parts.join('|');
+  // Hash SHA-256 → hwfp_XXXXXXXX
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(raw));
   const hex = Array.from(new Uint8Array(buf))
     .map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 32);
